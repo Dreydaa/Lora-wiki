@@ -46,7 +46,7 @@ Un correctif commité sur une branche de travail ne change rien en production ta
 
 @@ page application-bureau | I | 8 | L'application de bureau | Tauri, le thread Rust de temps d'écran, la zone de notification, le démarrage automatique et l'installeur.
 
-Application Tauri 2 (React + Vite pour l'interface, Rust pour le système), Windows uniquement. Le Rust est réparti en dix-huit modules : `main.rs` (fenêtres, zone de notification, suivi du temps d'écran), puis `apps.rs`, `system.rs`, `spotify.rs`, `player.rs`, `protocol.rs`, `speech.rs`, `listen.rs`, `control.rs`, `modes.rs`, `claude.rs`, `levels.rs`, `ambient.rs`, `greeting.rs`, `reminders.rs`, `desk.rs`, `audio.rs` et `pc.rs`.
+Application Tauri 2 (React + Vite pour l'interface, Rust pour le système), Windows uniquement. Le Rust est réparti en dix-neuf modules : `main.rs` (fenêtres, zone de notification, suivi du temps d'écran), puis `apps.rs`, `system.rs`, `spotify.rs`, `player.rs`, `protocol.rs`, `speech.rs`, `listen.rs`, `control.rs`, `modes.rs`, `claude.rs`, `levels.rs`, `ambient.rs`, `greeting.rs`, `reminders.rs`, `desk.rs`, `audio.rs`, `pc.rs` et `gesture.rs` (les touches et la souris envoyées à Blender).
 
 ## Fenêtre
 
@@ -98,6 +98,7 @@ Depuis le 13/10/2026, l'application exécute des commandes locales, sans réseau
 - **deux fichiers de boîte aux lettres** permettent à Claude Code de lui parler (« Claude Code a terminé ») et de se faire lire sa dernière réponse.
 - **de petites commandes locales** (09/11) : minuteurs et rappels, heure, temps d'écran, sites et dossiers, fenêtres, volume par application, sortie audio, micro, verrouillage / veille / extinction, presse-papiers, dictée, musique (voir [Les commandes de Løra](#commandes-vocales)) ;
 - **la parole spontanée et le bonjour** (08/11) : une phrase fixe pour un rendez-vous, la batterie de la souris, une pause pour le dos, et un bonjour avec le briefing au démarrage (voir [La voix de Løra](#voix)).
+- **la caméra et les gestes de la main** (11 → 13/11) : une fenêtre cachée traite la caméra avec un détecteur de mains local ; la caméra est éteinte par défaut et allumée, affichée, cachée ou éteinte à la voix ; les gestes ne servent qu'au mode manuel Blender (voir [Les gestes de la main](#gestes-main)).
 
 Le détail, les limites et ce qui n'est pas vérifié sont dans [Avancement de la V2](#avancement-v2).
 
@@ -214,7 +215,7 @@ Le ruban réagit à l'état de la voix depuis le 05/11/2026, et à la voix elle-
 
 @@ page tests-qualite | I | 11 | Tests et qualité | Quatre familles de tests plus du Rust, ce qu'ils garantissent et ce qu'ils ne couvrent pas.
 
-644 tests, ajoutés surtout le 08/10/2026 en fin de V1, puis à chaque étape de la V2 (472 rapides et 149 en Rust rejoués le 09/11/2026, 23 scénarios navigateur rejoués le 08/11/2026, d'après l'état du projet). Vitest 5, configuration à quatre projets dans `vitest.config.ts`.
+725 tests, ajoutés surtout le 08/10/2026 en fin de V1, puis à chaque étape de la V2 (547 rapides, 155 en Rust et 23 scénarios navigateur rejoués par la revue finale du 14/11/2026, d'après l'état du projet). Vitest 5, configuration à quatre projets dans `vitest.config.ts`.
 
 | Famille | Ce qu'elle couvre | Rapidité |
 | --- | --- | --- |
@@ -222,7 +223,7 @@ Le ruban réagit à l'état de la voix depuis le 05/11/2026, et à la voix elle-
 | **Intégration** | webhook Telegram (secret, `chat_id`, publication dans la file), worker (signature, réponse), crons du matin et du soir, `/api/dashboard` : le vrai code tourne de bout en bout, seuls Notion, Redis, Telegram, Groq et le réseau sont simulés | instantané |
 | **Régression** | un fichier par **famille de bugs déjà corrigés** : paramètres `null` de Groq, fuseau horaire, bilan périmé et rappels d'agenda, URL de livraison QStash, garde-fous fermés par défaut, requêtes Notion, champs retirés du payload, plafonds de requêtes des crons | instantané |
 | **Acceptation** | 23 scénarios (4 fichiers) dans un vrai navigateur (Playwright) sur l'app réelle avec un faux backend : dashboard complet, briefings, détail Écran, bascule Écran ↔ Jalons, liens, calendrier, backend en panne ou clé refusée, intro, pause du rendu, retour visuel de la voix et widget (noyau Tauri simulé) | environ 4 min |
-| **Rust** | 149 tests (13 essais réels ignorés par défaut) : reconnaissance des commandes, liste blanche des applications, volume, musique, protocole, voix, découpage de l'écoute et mot d'activation, analyse du son, commandes de contrôle, modes, Claude Code, minuteurs, bureau, audio, PC, lecteur, parole spontanée ; certains lancent ou ferment de vrais processus ou appellent un faux serveur HTTP local | instantané |
+| **Rust** | 155 tests (13 essais réels ignorés par défaut) : reconnaissance des commandes, liste blanche des applications, volume, musique, protocole, voix, découpage de l'écoute et mot d'activation, analyse du son, commandes de contrôle et de la caméra, modes, Claude Code, minuteurs, bureau, audio, PC, lecteur, parole spontanée, touches envoyées à Blender ; certains lancent ou ferment de vrais processus ou appellent un faux serveur HTTP local | instantané |
 
 ## Principes à retenir
 
@@ -231,13 +232,13 @@ Le ruban réagit à l'état de la voix depuis le 05/11/2026, et à la voix elle-
 - **Les bugs sont rangés par famille**, pas par date : chaque bug du chapitre [Bugs et causes racines](#bugs) a son garde-fou.
 - La vérification de types stricte (`tsc --noEmit`) accompagne chaque étape.
 
-## État au 09/11/2026
+## État au 14/11/2026 (revue finale)
 
-- <span class="st st-ok">Fait</span> **472 tests rapides passent** (35 fichiers) ; `tsc --noEmit` sans erreur ; **149 tests Rust passent, 13 sont ignorés** (les essais réels qui touchent la machine ou le réseau). Rejoués le 09/11/2026 d'après l'état du projet, pas pour cette mise à jour du wiki.
-- <span class="st st-ok">Fait</span> **23 scénarios navigateur** (4 fichiers, environ 4 min 20 s) rejoués en entier le 08/11/2026 ; les lots du 09/11 touchent le Rust et le backend, pas l'interface.
-- Les tests des lots du 09/11 n'utilisent **ni réseau ni modèle** : chaque service est simulé, et un « jamais appelé » fait échouer le test si une demande part au mauvais endroit. Pour la musique et l'envoi vers Telegram, de vraies requêtes partent vers de **faux serveurs locaux**. Deux défauts de tests ont été trouvés et corrigés (un fichier de jeton partagé, un corps JSON comparé tel quel).
+- <span class="st st-ok">Fait</span> **547 tests rapides passent** (42 fichiers) ; **155 tests Rust passent, 13 sont ignorés** (les essais réels qui touchent la machine ou le réseau) ; **23 scénarios navigateur passent** ; `tsc --noEmit` et la compilation du front sans erreur ; `npm audit` à 0 vulnérabilité. Batterie de la revue finale du 14/11/2026, d'après l'état du projet (pas rejouée pour cette mise à jour du wiki).
+- **Non lancés par la revue** : les batteries réelles (`test:live`, `test:search`, `test:projects` : jetons Groq et écritures Notion, accord de l'utilisateur requis) et les 13 tests Rust ignorés (matériel).
+- Les tests des lots de novembre n'utilisent **ni réseau ni modèle** : chaque service est simulé, et un « jamais appelé » fait échouer le test si une demande part au mauvais endroit. **Limite démontrée le 14/11** : un test sur un module seul ne prouve pas qu'il est branché (bug [26](#bugs)) ; un test de régression garde maintenant le branchement des réponses directes. Pour les gestes, des tests unitaires couvrent chaque geste (pose, filtre, rotate, zoom, scaling, un seul geste à la fois) ; les trois défauts vus en réel ne pouvaient pas l'être par eux (bug [24](#bugs)).
 - <span class="st st-ok">Fait</span> **Les deux tests de cadence sont corrigés (étape 0, 12/10/2026)** : ils lisent `REST_FPS` ; à 60 images/s le plafond ne se distingue plus de l'absence de plafond sur l'horloge simulée, ces tests ne gardent que le plafond haut.
-- Deux **batteries contre le vrai modèle** existent (`test:search` : 28 cas de recherche ; `test:projects` : briefings et bilan avec plusieurs projets). Ce ne sont pas des tests de non-régression : elles coûtent 160 000 à 220 000 jetons, sur un quota quotidien de 200 000 partagé avec les briefings, et ne se relancent pas plusieurs fois par jour. Les essais contre le vrai modèle ont été évités depuis le 05/11 (le quota avait été presque épuisé par des essais).
+- Deux **batteries contre le vrai modèle** existent (`test:search` : 28 cas de recherche ; `test:projects` : briefings et bilan avec plusieurs projets). Ce ne sont pas des tests de non-régression : elles coûtent 160 000 à 220 000 jetons, sur un quota quotidien de 200 000 partagé avec les briefings, et ne se relancent pas plusieurs fois par jour.
 
 ## Ce que les tests ne couvrent pas
 
@@ -299,6 +300,15 @@ Faite sur le code réel (lecture, rien d'exécuté contre des cibles tierces) : 
 5. les commandes de l'application ne sont pas restreintes par fenêtre : la fenêtre du widget pourrait les appeler, ce que bornent la CSP et la liste blanche d'applications.
 
 **Dépendances** : `npm audit` donnait 2 alertes hautes, corrigées (seul `package-lock.json` change, 0 alerte restante, tests verts).
+
+## La caméra (11 → 14/11)
+
+- **Éteinte par défaut, allumée seulement à la voix** (« allume la caméra ») ; sa fenêtre est **cachée par défaut** et n'est accessible que par la voix ; la croix de la fenêtre la masque sans éteindre la caméra (« éteins la caméra » la coupe). Aucune entrée de menu ne l'ouvre.
+- **Traitement 100 % local** : le suivi des mains tourne dans l'application, aucune image ne quitte la machine. Le modèle (7,8 Mo) est versionné ; le moteur WebAssembly est copié depuis les dépendances au build. La politique de contenu ajoute seulement l'exécution de WebAssembly et `media-src` pour les flux locaux.
+- **La caméra est choisie par son nom**, jamais une caméra virtuelle.
+- **Ce que les gestes peuvent envoyer** : seulement les touches S, X, Y, Z, Entrée et Échap, le clic molette, la molette et la souris, et **seulement quand Blender est au premier plan** (contrôle par le nom du programme, car le titre de Blender ne commence pas par « Blender »). Le clic molette est **toujours relâché** : fin du geste, perte de Blender, ou une seconde sans nouvelles de la page ; Échap part tout seul si la page se tait.
+- **Un défaut corrigé à la revue finale** : si la fenêtre était démontée pendant le chargement (caméra, modèle), le nettoyage passait avant l'ouverture du flux, qui n'était jamais fermé : le voyant de la caméra restait allumé. Le flux et le détecteur sont maintenant relâchés dans tous les cas (bug [27](#bugs)).
+- <span class="st st-prop">Non vérifié</span> Première utilisation de l'application installée : WebView2 demande l'autorisation de la caméra, la demande s'affiche dans la fenêtre cachée, d'où l'usage de « affiche la caméra » une fois pour cliquer « Autoriser ».
 
 ## L'application de bureau
 

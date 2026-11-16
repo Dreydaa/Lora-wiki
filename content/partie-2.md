@@ -25,13 +25,17 @@
 | 08/11 | **Elle parle d'elle-même, dit bonjour, et on abandonne une fonction** | Parole spontanée (rendez-vous, batterie de la souris, pause pour le dos), bonjour au démarrage, agenda léger pour l'application ; « qu'est-ce que je regarde ? » est codée puis abandonnée ; étapes 9, 10 et 13 validées par l'utilisateur ; passe sécurité et dépendances corrigées ; ménage du dépôt. PR #40 à #44. |
 | 09/11 | **Les « broutilles » : six lots et un journal plus riche** | Minuteurs, rappels, temps d'écran, sites, fenêtres, audio par application, verrouillage et extinction avec confirmation, presse-papiers, dictée, musique ; réponses sans modèle (météo, conversions, titres, compte à rebours, présence du PC) ; six outils Notion ; envoi vers Telegram ; résumés et liens dans le briefing du matin et actualités par thème. PR #45 et #46. |
 | 10/11 | **V1 soldée, deux défauts trouvés à l'usage** | La connexion au compte de musique ouvrait le dossier Documents ; « mets en fenêtré » lançait une musique. L'utilisateur déclare la V1 finie et les lots validés : il ne reste que l'étape 12 et deux protocoles reportés. PR #47. |
-| à partir de 30/09 | **V2 cadrée** | Assistant vocal local, protocoles, puis (06/10) gestes de la main : documenté ; au 10/11 : étapes 0 à 7, 9, 10 et 13 faites (les trois dernières validées par l'utilisateur), la 8 avec un seul protocole (deux reportés), la 11 abandonnée, la 12 (gestes de la main) pas commencée. Le premier chantier (personnalité unique) a été fait le 07/10, en fin de V1. |
+| 11 → 13/11 | **Les gestes de la main** | Détecteur de mains local, rendu de contrôle, mode manuel Blender à la voix (rotate, zoom aux deux index, scaling, validation aux deux poings), filtre des fausses mains, caméra éteinte et fenêtre cachée par défaut, allumées à la voix ; scroll, son et déplacement de fenêtre abandonnés ; l'étape 12 est cochée le 13/11. PR #48 à #51. |
+| 13/11 | **Un bilan absent de Notion : ce n'était pas le quota** | Aucun bilan pour les 12 et 13/11 ; le quota de Groq est intact, les vraies causes sont un appel d'outil refusé (400) et une requête de 6 675 jetons rejouée plus que de raison sous la limite par minute. Déclarations de l'utilisateur : broutilles et Extras faits, voix correcte, étape 8 en pause. |
+| 14/11 | **Revue finale** | Les réponses directes n'étaient jamais appelées : branchées ; la caméra pouvait rester allumée : corrigé ; avertissements Rust corrigés, MediaPipe chargé à la demande (paquet principal −18 %). Løra est considérée comme finie, sauf l'étape 8. PR #52. |
+| 16/11 | **Le dépôt se prépare à devenir public** | README bilingue, modèle de variables, licence, données personnelles retirées de la documentation : une pull request ouverte (#53), non fusionnée, quatre points à décider par l'utilisateur. |
+| à partir de 30/09 | **V2 cadrée** | Assistant vocal local, protocoles, puis (06/10) gestes de la main : documenté ; au 16/11 : étapes 0 à 7, 9, 10, 12 et 13 faites (9, 10 et 13 validées par l'utilisateur, 12 cochée par lui), la 8 avec un seul protocole et en pause, la 11 abandonnée. Le premier chantier (personnalité unique) a été fait le 07/10, en fin de V1. |
 
 ---
 
 @@ page vision-v2 | II | B | Vision V2 | Une seule personnalité, un agent local sur la machine, deux canaux d'entrée, un raisonnement qui reste dans le cloud.
 
-<span class="st st-vision">V2</span> Cette annexe décrit la vision ; ce qui est fait se lit dans [Avancement de la V2](#avancement-v2), [La voix de Løra](#voix) et [Les commandes de Løra](#commandes-vocales). La V1 est terminée ; la V2 a démarré le 12/10/2026 : au 10/11, les étapes 0 à 7, 9, 10 et 13 sont faites (les trois dernières validées par l'utilisateur le 08/11), la 8 l'est avec un seul protocole (deux autres reportés), la 11 est abandonnée, la 12 (gestes de la main) n'est pas commencée.
+<span class="st st-vision">V2</span> Cette annexe décrit la vision ; ce qui est fait se lit dans [Avancement de la V2](#avancement-v2), [La voix de Løra](#voix), [Les commandes de Løra](#commandes-vocales) et [Les gestes de la main](#gestes-main). La V1 est terminée ; la V2 a démarré le 12/10/2026 : au 16/11, les étapes 0 à 7, 9, 10, 12 et 13 sont faites, la 8 l'est avec un seul protocole (deux autres reportés, étape en pause), la 11 est abandonnée.
 
 ## Pourquoi cette direction
 
@@ -53,7 +57,7 @@ La V1 est entièrement cloud (Vercel, Notion, Telegram). La V2 penche vers le **
 
 - **Local, par la voix** : pour tout ce qui suppose d'être devant le PC allumé.
 - **Distant, par Telegram** : le canal existant, inchangé, avec en plus des commandes à effet réel (les « protocoles »). Un protocole qui démarre un PC éteint ne peut pas passer par la voix locale, puisque le micro est éteint avec la machine.
-- **Les gestes de la main** filmés par la caméra : un troisième canal d'entrée local, par le même agent.
+- **Les gestes de la main** filmés par la caméra : un troisième canal d'entrée local, par le même agent. **Fait le 13/11/2026**, réduit au mode manuel Blender : voir [Les gestes de la main](#gestes-main).
 
 ## Démarrage de l'écoute locale
 
@@ -61,7 +65,7 @@ Elle commence en mode « application ouverte » (le processus Tauri tourne ; une
 
 ---
 
-@@ page avancement-v2 | II | C | Avancement de la V2 | Étapes 0 à 13 entre le 12/10 et le 10/11/2026 : ce qui est fait, vérifié ou non, et la suite.
+@@ page avancement-v2 | II | C | Avancement de la V2 | Étapes 0 à 13 entre le 12/10 et le 16/11/2026 : ce qui est fait, vérifié ou non, et la suite.
 
 La V2 avance en 13 étapes, **du plus simple au plus dur**, une pull request par étape. Source : `docs/ai/STATUS-V2.md` du dépôt, qui fait foi. Chaque étape dit ce qui a été **essayé pour de vrai** et ce qui ne l'a été que dans des tests simulés.
 
@@ -75,13 +79,13 @@ La V2 avance en 13 étapes, **du plus simple au plus dur**, une pull request par
 | 5 | Recherche web de Løra | <span class="st st-ok">Fait</span> sur le vrai modèle ; <span class="st st-prop">Non vérifié</span> sur Telegram |
 | 6 | Volume, musique, batterie de la souris | <span class="st st-ok">Fait</span> essayés sur la vraie machine |
 | 7 | Plusieurs projets en parallèle | <span class="st st-ok">Fait</span> confirmé par l'utilisateur |
-| 8 | Moteur de protocoles | <span class="st st-ok">Fait</span> essayé en réel le 05/11/2026 ; deux autres protocoles reportés |
+| 8 | Moteur de protocoles | <span class="st st-ok">Fait</span> essayé en réel le 05/11/2026 ; **en pause** (« bientôt fait » selon l'utilisateur, 13/11) ; deux autres protocoles reportés |
 | 9 | Voix : synthèse, reconnaissance, mot d'activation, ruban réactif | <span class="st st-ok">Fait</span> essayée avec la vraie voix le 05/11/2026 ; validée par l'utilisateur le 08/11/2026 |
 | 10 | Agent résident et widget de bureau | <span class="st st-ok">Fait</span> validé par l'utilisateur le 08/11/2026 |
 | 11 | « Qu'est-ce que je regarde ? » | <span class="st st-repl">Retiré</span> abandonnée le 08/11/2026 |
-| 12 | Gestes de la main | <span class="st st-vision">V2</span> |
+| 12 | Gestes de la main | <span class="st st-ok">Fait</span> cochée le 13/11/2026 sur décision de l'utilisateur ; essayée par lui dans Blender (sa parole) ; <span class="st st-prop">Non vérifié</span> seuils et gains à régler à l'usage |
 | 13 | Élargir les commandes vocales | <span class="st st-ok">Fait</span> validé par l'utilisateur (08 et 10/11/2026, sur sa parole) ; essayé avant contre des simulations |
-| Extras | Résumés et liens dans le briefing, parole spontanée, bonjour au démarrage | <span class="st st-ok">Fait</span> côté code ; <span class="st st-prop">Non vérifié</span> essai réel non consigné |
+| Extras | Résumés et liens dans le briefing, parole spontanée, bonjour au démarrage | <span class="st st-ok">Fait</span> codés ; déclarés faits par l'utilisateur le 13/11/2026 (sa parole, essais réels non rejoués par moi) |
 
 ## Étape 4 : ouvrir et fermer une application
 
@@ -177,9 +181,29 @@ Passe sécurité sur le code réel : rien de bloquant, cinq points à connaître
 
 L'arbre de travail local était en retard sur `main` : chaque modification non commitée a été comparée fichier par fichier à `origin/main` (identiques) puis sauvegardée avant d'être écartée ; 39 branches locales déjà fusionnées supprimées ; 19 Go de fichiers de compilation supprimés ; un ancien désinstalleur orphelin supprimé sans être lancé. **Pas fait** : les branches distantes déjà fusionnées sont toujours sur GitHub (suppression refusée par le garde-fou de la session).
 
+## Étape 12 : les gestes de la main (11 → 13/11)
+
+La dernière étape de la liste : piloter Blender avec les mains devant la caméra. Six lots en trois jours (PR #48 à #51) : détecteur local avec rendu de contrôle, mode manuel à la voix, rotate, scaling, validation aux deux poings, zoom aux deux index, filtre des fausses mains, caméra à la voix. **Décision de l'utilisateur le 13/11** : le scroll, le son et le déplacement de fenêtre sont abandonnés ; les gestes ne servent plus qu'au mode manuel Blender. Cochée le jour même, une fois la caméra à la voix faite ; ses réglages à l'usage restent ouverts. Le détail, ce qui a été essayé en réel et ce qui ne l'a pas été : [Les gestes de la main](#gestes-main).
+
+## Déclarations de l'utilisateur du 13/11
+
+Sa parole, que je n'ai pas rejouée : Spotify reconnecté ; broutilles vocales finies (lots 1 à 6) ; Extras 1 et 2 faits ; voix de Piper correcte ; étape 8 en pause (« bientôt fait ») ; les tests d'acceptation seront lancés « bientôt », après l'optimisation du code et d'autres choses à faire ; installeur reconstruit et backend redéployé **à la fin de la session, par lui**. Le code des gestes et de la caméra à la voix n'est donc pas encore dans l'application installée.
+
+## Un bilan non enregistré (13/11)
+
+Voir le bug [25](#bugs) : ce n'était pas le quota de Groq mais un appel d'outil refusé et une requête trop lourde pour la limite par minute. Les bilans des 12 et 13/11 sont à rattraper ; les pistes sans paiement ne sont pas codées.
+
+## Revue finale (14/11)
+
+Løra est considérée comme finie, l'étape 8 restant en attente. Défauts corrigés : **les réponses directes n'existaient pas** (bug [26](#bugs)) et **la caméra pouvait rester allumée** (bug [27](#bugs)). Optimisation : la fenêtre de la caméra, donc MediaPipe, est chargée à la demande (paquet principal 890 → 733 ko, −18 %). Rust : les 24 avertissements de `clippy` sont corrigés, du code mort retiré. **Batterie** : 547 tests rapides, 155 Rust (13 ignorés), 23 scénarios navigateur, `tsc` et compilation du front propres, 0 vulnérabilité. **Non lancés** : les batteries réelles (jetons Groq, écritures Notion) et les 13 tests Rust ignorés (matériel). La batterie de recherche ne fixe plus le mois attendu en dur.
+
+## Le dépôt public (16/11)
+
+Une pull request ouverte (#53, non fusionnée) prépare le passage du dépôt en public : README en anglais et en français avec guide d'installation en sept étapes, modèle de variables d'environnement, licence MIT par défaut, données personnelles retirées de la documentation et des commentaires. <span class="st st-prop">Non vérifié</span> Le guide n'a pas été rejoué de zéro sur un compte vierge. **À décider par l'utilisateur avant de passer en public** : confirmer la licence, l'adresse du déploiement qui reste dans la politique de contenu (le build en dépend), la provenance et la licence de deux images de la documentation, et l'activation du signalement privé des vulnérabilités.
+
 ## Ce qui reste ouvert
 
-Au 10/11/2026, d'après l'utilisateur, il ne reste que **l'étape 12 (gestes de la main)** et **l'étape 8 (deux protocoles reportés)**. Tout ce qui est marqué validé l'est sur sa parole : je n'ai rien rejoué. Restent non consignés comme vérifiés : l'installeur reconstruit (un nom avec « ø » dans NSIS, la confirmation de désinstallation), les Extras en réel, les restrictions d'API du service de musique pour les applications en développement en 2026, la bascule F11 qui ne connaît pas l'état de la fenêtre, et le nettoyage des branches distantes.
+D'après l'utilisateur au 14/11/2026, tout est fait sauf **l'étape 8** (deux protocoles, en pause). Tout ce qui est marqué validé ou fait l'est sur sa parole : je n'ai rien rejoué. Restent non consignés comme vérifiés : l'installeur reconstruit (nom avec « ø », confirmation de désinstallation, code des gestes et de la caméra), les seuils du filtre des mains et les gains des gestes à l'usage, les bilans des 12 et 13/11 à rattraper, les restrictions d'API du compte de musique pour les applications en développement en 2026, la bascule F11 qui ne connaît pas l'état de la fenêtre, les réponses directes en réel, le nettoyage des branches distantes, et le guide d'installation du dépôt public.
 
 ---
 
@@ -191,13 +215,13 @@ Cette page rassemble ce qui concerne la parole, du 18/10 au 08/11/2026. Source :
 
 | Brique | Ce qu'elle fait | Statut |
 | --- | --- | --- |
-| Voix de sortie (Piper, repli sur la voix de Windows) | Dit les réponses de `Ctrl+K`, du micro et du hook « Claude Code a terminé » | <span class="st st-ok">Fait</span> accents jugés satisfaisants ; validée le 08/11/2026 ; <span class="st st-prop">Non vérifié</span> accent anglais des noms d'applications, volume dans l'application |
+| Voix de sortie (Piper, repli sur la voix de Windows) | Dit les réponses de `Ctrl+K`, du micro et du hook « Claude Code a terminé » | <span class="st st-ok">Fait</span> accents jugés satisfaisants ; validée le 08/11/2026 ; **voix jugée correcte par l'utilisateur le 13/11/2026** ; <span class="st st-prop">Non vérifié</span> accent anglais des noms d'applications, volume dans l'application |
 | Reconnaissance locale (Whisper) et mot d'activation « Løra » | Transforme une phrase qui commence par « Løra » en demande, traitée comme une phrase tapée | <span class="st st-ok">Fait</span> essayée avec la vraie voix le 05/11/2026, validée le 08/11/2026 |
 | Commandes de contrôle | « stop », « repose-toi », « fin de mission » | <span class="st st-ok">Fait</span> validées le 08/11/2026 |
 | Retour visuel et widget | Le ruban réagit à l'état et à la vraie voix ; une fenêtre transparente apparaît en bas à droite | <span class="st st-ok">Fait</span> validés le 08/11/2026 |
 | Modes de travail | Une phrase lance un ensemble d'applications et de pages | <span class="st st-ok">Fait</span> validés le 08/11/2026 (essayés avant seulement avec des simulations) |
 | Claude Code | Lire la dernière réponse, dicter une suite, la relire, l'envoyer sur un « oui » | <span class="st st-ok">Fait</span> validé le 08/11/2026 (essayé avant seulement avec de fausses frappes) |
-| Parole spontanée et bonjour | Une phrase fixe pour un rendez-vous, la batterie de la souris, une pause pour le dos ; un bonjour au démarrage | <span class="st st-ok">Fait</span> côté code ; <span class="st st-prop">Non vérifié</span> essai réel non consigné |
+| Parole spontanée et bonjour | Une phrase fixe pour un rendez-vous, la batterie de la souris, une pause pour le dos ; un bonjour au démarrage | <span class="st st-ok">Fait</span> code ; Extra 2 déclaré fait par l'utilisateur le 13/11/2026 (sa parole) |
 | Petites commandes locales | Minuteurs, volume par application, dictée, etc. | voir [Les commandes de Løra](#commandes-vocales) |
 
 ## La voix de sortie
@@ -297,10 +321,10 @@ Tout passe par la même entrée : une phrase tapée dans `Ctrl+K` ou dite après
 | --- | --- | --- | --- |
 | Commandes locales | ouvrir ou fermer une application, volume, musique, batterie de la souris, minuteurs et rappels, heure et date, temps d'écran, sites et dossiers, fenêtres, volume par application, sortie audio, micro, presse-papiers, dictée, titre en cours, like, aléatoire, playlist | le PC | 0 |
 | Actions avec confirmation | verrouiller, mettre en veille, éteindre, vider la corbeille | le PC | 0 |
-| Contrôle de Løra | « stop », « repose-toi », « fin de mission » | le PC | 0 |
+| Contrôle de Løra | « stop », « repose-toi », « fin de mission » ; « mode manuel » et « fin du mode manuel » ; « allume », « affiche », « cache », « éteins la caméra » ; « centre le curseur » (Blender) | le PC | 0 |
 | Modes de travail, Claude Code | « mode créatif », « mode dev » ; lire, dicter, relire, envoyer | le PC | 0 |
 | Envoi et présence | « envoie-moi ça sur Telegram » ; « mon PC est-il allumé ? » | le PC et le backend, sans modèle | 0 |
-| Réponses directes | météo de demain ou de la semaine, conversions d'unités, de devises et de cryptomonnaies, titres du jour, compte à rebours | le backend, sans modèle | 0 |
+| Réponses directes | météo de demain ou de la semaine, conversions d'unités, de devises et de cryptomonnaies, titres du jour, compte à rebours | le backend, sans modèle ; **branchées seulement le 14/11/2026** (bug [26](#bugs)) | 0 |
 | Un petit appel | traduction, définitions | le backend, modèle léger sans outils | environ 1 000 (estimé) |
 | Le modèle avec outils | lectures et écritures Notion, briefings, avis sur un projet, recherche web | le backend et Groq | 3 700 et plus ; 19 000 à 41 000 avec la recherche |
 
@@ -317,7 +341,7 @@ Une liste de « broutilles » proposée le 08/11, dont l'utilisateur a retenu to
 
 ## Statut
 
-<span class="st st-ok">Fait</span> Validé par l'utilisateur le 10/11/2026 (« tout est bon, il ne reste que l'étape 12 et 8 »), **sur sa parole : je n'ai rien rejoué**. Avant sa validation, les lots n'avaient été essayés que contre des simulations : faux Spotify local, faux client Notion, faux serveurs HTTP, réponses simulées des APIs de météo et de taux, et des essais en lecture seule sur la vraie machine (sessions audio, sorties, appel de l'interface de changement de sortie sur la sortie déjà active). Deux défauts trouvés à l'usage ont été corrigés le 10/11 (bugs [22](#bugs) et [23](#bugs)).
+<span class="st st-ok">Fait</span> Validé par l'utilisateur le 10/11/2026 (« tout est bon, il ne reste que l'étape 12 et 8 »), **sur sa parole : je n'ai rien rejoué**. Avant sa validation, les lots n'avaient été essayés que contre des simulations : faux Spotify local, faux client Notion, faux serveurs HTTP, réponses simulées des APIs de météo et de taux, et des essais en lecture seule sur la vraie machine (sessions audio, sorties, appel de l'interface de changement de sortie sur la sortie déjà active). Deux défauts trouvés à l'usage ont été corrigés le 10/11 (bugs [22](#bugs) et [23](#bugs)). **Mais la revue finale du 14/11 a trouvé que les réponses directes (lot 4 et une partie du lot 6) n'étaient jamais appelées** : tout partait au modèle. Elles sont branchées depuis, sans essai réel (bug [26](#bugs)) : la validation sur parole du 10/11 ne prouvait donc pas ce chemin.
 
 <span class="st st-prop">Non vérifié</span> Ce que je ne peux pas confirmer : un vrai changement de sortie audio, la veille, l'extinction, la corbeille, le verrouillage, la dictée réelle, le micro coupé (non essayé : il aurait coupé l'écoute), les APIs réelles de taux de change et de cryptomonnaies, les restrictions d'API du compte de musique pour les applications en développement en 2026, et que le backend de ces lots ait été redéployé (sans lui, la présence et l'envoi vers Telegram répondent en erreur).
 
@@ -327,19 +351,72 @@ Nombres en chiffres seulement (« vingt minutes » n'est pas compris) ; pas de l
 
 ---
 
-@@ page chantiers-v2 | II | F | Les chantiers de la V2 | Les neuf chantiers cadrés, leur statut et leurs décisions déjà prises.
+@@ page gestes-main | II | F | Les gestes de la main | Détecteur de mains local, mode manuel Blender (rotate, zoom, scaling), caméra à la voix, filtre des fausses mains, et ce qui a été abandonné.
+
+L'étape 12, la dernière de la liste de la V2 : piloter Blender avec les mains, devant la caméra. Construite du 11 au 13/11/2026 en six lots (PR #48 à #51), **cochée le 13/11 sur décision de l'utilisateur**. Source : `docs/ai/STATUS-V2.md` (étape 12) et `docs/ai/LoraV2.md` (chantier 9). **L'utilisateur a essayé les gestes en réel dans Blender** (« ça marche » pour le rotate le 11/11, « le scaling fonctionne » le 12/11, « les gestes sur Blender fonctionnent » le 13/11) : c'est son constat, je n'ai vu qu'une partie du résultat (l'embrayage dans une capture, des mains suivies sur des images réelles).
+
+## Ce qui a été construit
+
+- **Moteur** : une bibliothèque de suivi des mains (MediaPipe) qui tourne à 100 % en local dans l'application ; le modèle (7,8 Mo) est versionné, le moteur WebAssembly est copié au build.
+- **Calculs purs et testés** : côté de la main, paume ou dos vers la caméra (produit vectoriel du poignet vers les bases de l'index et de l'auriculaire), doigts levés hors pouce (bout plus loin du poignet que l'articulation du milieu, indépendant de l'inclinaison), boîte englobante.
+- **Rendu de contrôle** : image en miroir, 21 points par main, un bâton par doigt, un carré par main (bleu à gauche, orange à droite), une étiquette (côté, paume ou dos, nombre de doigts), le bout du pouce cerclé (repère du rotate), un voyant « caméra active » et la cadence. Un **panneau d'embrayage** montre le mode (base ou manuel), l'état (libre, armement avec sa progression, **embrayé**), la commande en cours et un contour sur la ou les mains d'embrayage. Le rendu était un prérequis posé dès la conception : voir en direct si le suivi est fiable avant tout geste.
+- **Caméra** : choisie par son nom (jamais une caméra virtuelle), demandée en 1280×720 à 60 Hz. La détection tourne à environ 54 images par seconde, **bien au-dessus de la cible de 15** posée pour ne pas gêner Blender : elle n'a pas été redescendue, et la charge GPU avec Blender n'a pas été mesurée.
+
+## Le mode manuel Blender
+
+« Løra, mode manuel » passe les gestes sur un profil Blender, « fin du mode manuel » revient (phrases reconnues en local, aucun modèle). C'est **une seconde table de gestes, une seule active à la fois** : un même geste ne déclenche jamais deux actions. Aucun geste n'est envoyé si Blender n'est pas la fenêtre au premier plan (contrôle par le nom du programme : le titre de Blender ne commence pas par « Blender »). Retour automatique au profil de base après une minute sans mains (valeur posée, à ajuster).
+
+| Action | Geste | Envoi à Blender |
+| --- | --- | --- |
+| **Rotate** | Main gauche ouverte, paume vers la caméra = embrayage ; main droite : le **bout du pouce** sert de repère et son déplacement fait tourner la vue | Clic molette maintenu et souris ; deux poings fermés (ou la main gauche baissée) le lâchent |
+| **Zoom** | **Les deux index pointés** (autres doigts repliés, tenu 300 ms) : la distance entre les bouts, rapportée à la taille des mains, pilote le zoom (écart = avant, rapprochement = arrière), continu | Molette |
+| **Scaling** | Deux paumes vers la caméra avec au moins un doigt levé aux deux mains ; doigts levés de la main gauche : 1 = axe X, 2 = Y, 3 = Z, main ouverte = général ; l'écart entre les poignets donne le facteur | `S`, la touche d'axe, la souris, puis `Entrée` pour valider (**deux poings fermés tenus 250 ms**) ; `Échap` si une main est perdue |
+
+- **Séparer les gestes** : chacun doit être tenu environ 300 ms pour s'engager, puis il reste verrouillé jusqu'à la fin du geste (pas de bascule du rotate au scaling en route).
+- **Axe du scaling** : pris quand le nombre de doigts est stable 300 ms ; un changement envoie la nouvelle touche, **jamais deux fois la même** (deux `X` de suite passent Blender en axe local). La distance est mesurée entre les poignets, pas entre les bouts de doigts, sinon lever un doigt changerait le facteur.
+- **Fins de geste** : le clic molette est toujours relâché (fin du geste, perte de Blender, une seconde sans nouvelles de la page) et `Échap` part tout seul si la page se tait.
+- **« Løra, centre le curseur »** : la souris au centre de la fenêtre Blender (seulement si Blender est au premier plan), pour poser le curseur dans la vue 3D avant un scaling.
+- **Gains** (rotate 1 200, scaling 1 500, zoom 6 crans de molette par longueur de main) : posés, non réglés. Le facteur du scaling dépend de la distance entre le curseur et le pivot de l'objet : il n'est pas linéaire, mais comme l'utilisateur voit le résultat, sa main corrige.
+
+## La caméra à la voix
+
+Décision de l'utilisateur (13/11) : **la caméra est éteinte et sa fenêtre cachée par défaut**, et on ne les atteint que par la voix. « Allume la caméra » crée la fenêtre cachée (la caméra tourne, les gestes marchent, rien n'est affiché) ; « affiche la caméra » la montre ; « cache la caméra » la masque (la caméra reste allumée) ; « éteins la caméra » la détruit (et le mode manuel s'éteint avec). L'entrée de menu qui ouvrait l'aperçu est supprimée ; la croix de la fenêtre la masque seulement. <span class="st st-prop">Non vérifié</span> À la première utilisation de l'application installée, WebView2 demande l'autorisation de la caméra : la demande s'affiche dans la fenêtre, d'où « affiche la caméra » une fois pour cliquer « Autoriser ».
+
+## Le filtre des fausses mains
+
+Un visage ou un décor étaient parfois pris pour une main. Seuils de confiance du modèle relevés (détection 0,7, présence 0,7, suivi 0,6), score minimal 0,7, une main n'existe qu'après 4 images consécutives et garde sa confirmation 150 ms ; les doublons (recouvrement à plus de 60 %) sont écartés ; les mains rejetées sont dessinées en gris avec leur score, pour régler les seuils. <span class="st st-prop">Non vérifié</span> Tous les seuils sont **posés avant mesure** : ils peuvent être trop stricts en faible lumière.
+
+## Ce qui a été abandonné
+
+- **Scroll, son, déplacement de fenêtre** (décision de l'utilisateur, 13/11) : il n'y a plus aucune commande de base aux gestes. Le scroll avait été codé puis retiré le jour même sans être essayé ; le son reste possible à la voix.
+- **Zoom dos contre dos et paumes face à face, avec un cliquet** : le dos de la main cache le poignet et l'orientation de la paume de profil est instable (mesures du 13/11 : paumes face à face +0,9 à +1,0, dos face à face −0,4 à −0,9). Remplacés par les deux index pointés ; sans orientation, le cliquet n'a plus de sens et est retiré.
+- **Un aperçu ouvert par un menu** : remplacé par la voix.
+
+## Trois défauts que les tests ne pouvaient pas voir
+
+Gauche et droite inversés, les poings qui relançaient l'embrayage en boucle, le zoom dos contre dos : voir le bug [24](#bugs). Leçon commune : mesurer sur de vraies mains avant de figer un seuil.
+
+## Vérifié et non vérifié
+
+- <span class="st st-ok">Fait</span> **En réel, par moi, sur images de la caméra (11/11)** : deux mains suivies en même temps, côtés et paume ou dos confirmés (après la correction de l'inversion), main gauche seule avec 1, 2, 3 puis 4 doigts levés (comptes justes).
+- <span class="st st-ok">Fait</span> **En réel, par l'utilisateur dans Blender** : rotate, scaling, validation aux poings, zoom (sa parole).
+- <span class="st st-prop">Non vérifié</span> Une main de profil (l'étiquette peut basculer ; une zone morte existe, sa limite 0,2 n'est pas mesurée), un doigt levé autre que l'index, une main inclinée à 45°, la lumière faible (la caméra a posterisé l'image dans une pièce sombre), la cadence avec Blender ouvert, le sens et la sensibilité des gains, le centrage du curseur avec plusieurs écrans, le retour automatique au profil de base, les seuils du filtre, et **l'application installée, qui n'a pas ce code** (l'installeur est reconstruit par l'utilisateur à la fin de la session).
+
+---
+
+@@ page chantiers-v2 | II | G | Les chantiers de la V2 | Les neuf chantiers cadrés, leur statut et leurs décisions déjà prises.
 
 | # | Chantier | Statut |
 | --- | --- | --- |
 | 1 | Une seule personnalité, retrait du mode ACTIF/PAUSE | <span class="st st-ok">Fait</span> le 07/10/2026 |
-| 2 | Système de protocoles | Un protocole fait le 17/10/2026 et essayé en réel par l'utilisateur le 05/11/2026 (fonctionne) ; deux autres reportés (une ressource manque) |
+| 2 | Système de protocoles | Un protocole fait le 17/10/2026 et essayé en réel par l'utilisateur le 05/11/2026 (fonctionne) ; deux autres reportés (une ressource manque) ; étape **en pause** (« bientôt fait », 13/11) |
 | 3 | Fonctionnalités vocales | Applications, recherche, musique, volume, batterie, voix de sortie, reconnaissance locale, mot d'activation, près de vingt « broutilles » et réponses sans modèle faits (validés par l'utilisateur, 08 et 10/11/2026) ; « qu'est-ce que je regarde ? » abandonnée |
 | 4 | Pauses de plusieurs jours | <span class="st st-ok">Fait</span> en version minimale le 06/10/2026, affichée dans le dashboard le 12/10/2026 |
 | 5 | Widget de bureau, application fermée | Widget fait et validé par l'utilisateur le 08/11/2026 ; l'écoute fenêtre masquée existe (l'application tournait en démarrage automatique avec le serveur de reconnaissance lancé) |
 | 6 | Optimisation du code et du dossier | Trois passes mesurées faites (la dernière le 12/10/2026), le reste laissé volontairement |
 | 7 | Plusieurs projets « En cours » en même temps | <span class="st st-ok">Fait</span> le 15/10/2026 |
 | 8 | Documentation pour le portfolio | En cours (ce wiki en fait partie) |
-| 9 | Gestes de la main par caméra | <span class="st st-vision">V2</span> |
+| 9 | Gestes de la main par caméra | <span class="st st-ok">Fait</span> cochée le 13/11/2026, réduite au mode manuel Blender (voir [Les gestes de la main](#gestes-main)) |
 
 ## 2. Protocoles
 
@@ -374,17 +451,16 @@ Première passe mesurée faite (voir [Déploiement](#deploiement) et [L'avatar](
 
 ## 9. Gestes de la main par caméra
 
-Surdev assumé par l'utilisateur : un défi personnel pour construire l'agent qu'il veut vraiment, plus proche de Jarvis/FRIDAY.
+Surdev assumé par l'utilisateur : un défi personnel pour construire l'agent qu'il veut vraiment, plus proche de Jarvis/FRIDAY. **Fait du 11 au 13/11/2026**, dans un périmètre réduit : voir [Les gestes de la main](#gestes-main).
 
-- **Prérequis : un détecteur de mains avec rendu de contrôle**, avant toute action : un point par articulation (21 par main), un bâton par doigt, un carré par main, la gauche et la droite distinguées ; le but est de voir en direct si le suivi est fiable (les deux mains identifiées en continu, gauche et droite qui ne s'inversent pas malgré l'image miroir de la webcam, tenue quand un doigt se cache).
-- Suivi **en local** dans le webview (aucune image ne quitte la machine) ; règles simples sur les points (pincement, paume ouverte qui glisse, poing fermé) puis table de correspondance dans la configuration locale, **sans modèle de langage**.
-- **Actions de départ** : défiler une page, zoomer sur différents documents ou applications, déplacer une fenêtre d'un écran à l'autre, gérer le son. Le zoom demande un **profil par application** (Blender, un logiciel graphique, un lecteur PDF réagissent chacun à leurs propres raccourcis).
-- **Nombre de mains** : une seule suffit pour la plupart des gestes ; le **zoom** utilise les deux (dos des mains face à face et écartement = zoom avant ; paumes face à face et rapprochement = zoom arrière). Quantité de zoom **proportionnelle** à l'écartement, avec un comportement de **cliquet** : dans une pose donnée, seul le mouvement dans le sens du geste compte, le retour est ignoré et la distance de référence est recalée.
-- **Risques** : déclenchements involontaires (il faudra un geste d'armement explicite), applications lancées en administrateur (Windows refuse l'injection d'entrées), position de la webcam et éclairage, coût CPU/GPU d'une caméra qui regarde en continu.
+- **Prérequis respecté : un détecteur de mains avec rendu de contrôle**, avant toute action (un point par articulation, un bâton par doigt, un carré par main, la gauche et la droite distinguées). Il a servi à trouver trois défauts (bug [24](#bugs)).
+- Suivi **en local** (aucune image ne quitte la machine), règles simples sur les points, **sans modèle de langage**.
+- **Périmètre final (13/11)** : seulement le **mode manuel Blender** (rotate, zoom, scaling), activé à la voix. Le scroll, le son et le déplacement de fenêtre sont abandonnés. Le zoom utilise les deux index pointés, et non plus les deux mains dos contre dos ou paumes face à face avec un cliquet.
+- **Risques d'origine** : déclenchements involontaires (réglés par un geste d'engagement propre à chaque geste et la caméra éteinte par défaut), applications lancées en administrateur (Windows refuse l'injection d'entrées), position de la webcam et éclairage (non mesuré en faible lumière), coût CPU/GPU d'une caméra qui regarde en continu (non redescendu à la cible de 15 images par seconde).
 
 ---
 
-@@ page commandes | II | G | Commandes et variables | Les commandes npm, les scripts de configuration et les variables d'environnement.
+@@ page commandes | II | H | Commandes et variables | Les commandes npm, les scripts de configuration et les variables d'environnement.
 
 ## Développement et build
 
@@ -450,6 +526,7 @@ La voix et l'écoute demandent des fichiers installés à la main (Piper et son 
 | `?skip` | Saute l'intro |
 | `?intro` | Prévisualisation de l'intro seule |
 | `?hub` | Prévisualisation du ruban seul |
+| `?hands` | Aperçu de la caméra et des mains (détecteur, rendu de contrôle, panneau d'embrayage) |
 
 ## Variables d'environnement
 
@@ -457,7 +534,7 @@ Voir le tableau du chapitre [Déploiement et planification](#deploiement).
 
 ---
 
-@@ page glossaire | II | H | Glossaire | Les termes techniques utilisés dans ce wiki.
+@@ page glossaire | II | I | Glossaire | Les termes techniques utilisés dans ce wiki.
 
 | Terme | Définition |
 | --- | --- |
@@ -479,6 +556,9 @@ Voir le tableau du chapitre [Déploiement et planification](#deploiement).
 | **WebView2** | Moteur web de Windows (basé sur Chromium) qui affiche l'interface de l'application. |
 | **Zod** | Bibliothèque de validation de schémas ; ici limitée aux outils de l'IA. |
 | **Hook** | Commande déclenchée par un événement d'un outil ; ici, la fin d'une réponse de Claude Code. |
+| **Embrayage** | La pose qui « engage » un geste (main gauche ouverte, deux paumes, deux index pointés) pour éviter les déclenchements accidentels. |
+| **MediaPipe** | Bibliothèque de suivi des mains qui tourne en local dans l'application (modèle de 7,8 Mo). |
+| **Mode manuel** | Le profil de gestes pour Blender, activé à la voix ; aucun geste n'est envoyé si Blender n'est pas au premier plan. |
 | **Broutille** | Petite fonction vocale utile au quotidien (minuteur, volume d'une application, titre en cours…), livrée par lots. |
 | **Présence** | Le signe de vie que le PC envoie au backend, pour répondre « mon PC est-il allumé ? ». |
 | **Réponse directe** | Réponse fabriquée par le code, sans appeler le modèle : zéro jeton. |
@@ -497,7 +577,7 @@ Voir le tableau du chapitre [Déploiement et planification](#deploiement).
 
 ---
 
-@@ page sources | II | I | Sources | Les documents du dépôt Løra et les services utilisés.
+@@ page sources | II | J | Sources | Les documents du dépôt Løra et les services utilisés.
 
 Ce wiki est consolidé à partir du dépôt Løra (le dépôt GitHub et les dossiers gardent le nom Soza) et de son historique. En cas de conflit, le dépôt fait foi.
 
@@ -517,7 +597,7 @@ Ce wiki est consolidé à partir du dépôt Løra (le dépôt GitHub et les doss
 
 ## Services et bibliothèques
 
-Groq (modèle de langage), Vercel (hébergement et AI SDK), Upstash (QStash et Redis), Notion (API), Telegram (Bot API), Open-Meteo (météo), flux RSS (TechCrunch, Vogue), Piper (synthèse vocale locale), whisper.cpp (reconnaissance vocale locale), l'API web d'un service de musique, Frankfurter (taux de change) et CoinGecko (cryptomonnaies), des flux d'actualités français et anglais, Tauri 2, React, Vite, three.js, Zod, Vitest, Playwright. Le rendu Markdown de ce wiki utilise `marked` (licence MIT). Le jeu de données de départ de la voix (SIWIS) est sous licence CC-BY 4.0 : une attribution sera à prévoir si la voix est un jour distribuée.
+Groq (modèle de langage), Vercel (hébergement et AI SDK), Upstash (QStash et Redis), Notion (API), Telegram (Bot API), Open-Meteo (météo), flux RSS (TechCrunch, Vogue), Piper (synthèse vocale locale), whisper.cpp (reconnaissance vocale locale), MediaPipe (suivi des mains local), l'API web d'un service de musique, Frankfurter (taux de change) et CoinGecko (cryptomonnaies), des flux d'actualités français et anglais, Tauri 2, React, Vite, three.js, Zod, Vitest, Playwright. Le rendu Markdown de ce wiki utilise `marked` (licence MIT). Le jeu de données de départ de la voix (SIWIS) est sous licence CC-BY 4.0 : une attribution sera à prévoir si la voix est un jour distribuée.
 
 ## Ce que ce wiki ne contient pas
 

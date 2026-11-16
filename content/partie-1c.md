@@ -26,7 +26,11 @@
 | **Une confirmation vocale pour ce qui éteint ou efface** | Exécuter directement | Une phrase mal comprise ne doit pas éteindre le PC ni vider la corbeille : question, « oui » dans les 30 secondes, délai de 30 secondes avant l'extinction | Un échange de plus |
 | **Les moteurs de voix hors du dossier effaçable** | Les laisser dans le dossier de données de l'application | La case « supprimer les données » du désinstalleur avait tout effacé (1,9 Go posés à la main) ; un dossier voisin n'est pas touché | Un dossier de plus à connaître |
 | **Abandonner une fonction qui ne tient pas** (« qu'est-ce que je regarde ? ») | La garder « au cas où » | Inutile pour l'utilisateur, coût en jetons non rentable, et le modèle de vision inventait le contenu de l'écran | Du code écrit puis retiré |
-| **Des tests sans aucun vrai service** | Tester contre les vrais Notion, Redis, Groq | Rapides (environ une seconde pour 472 tests), reproductibles, sans risque pour les vraies données ; tout appel réseau non prévu fait échouer le test | Un seul test (`test:live`), lancé à la main, valide les vraies APIs |
+| **Gestes de la main : un seul mode, Blender** | Des commandes de base aux gestes (scroll, son, déplacement de fenêtre) | Un geste par action sans conflit ; le scroll a été codé puis retiré le jour même, le son et la fenêtre abandonnés par l'utilisateur (le son reste possible à la voix) | Les gestes ne servent plus que dans Blender |
+| **Caméra éteinte et fenêtre cachée par défaut** | Un aperçu ouvert par un menu | Une caméra qui tourne sans qu'on y pense est une surface sensible ; la voix est le seul accès | Première utilisation : « affiche la caméra » pour autoriser WebView2 |
+| **Deux index pointés pour le zoom** | Le dos des mains ou les paumes face à face, avec un cliquet | Le dos de la main cache le poignet et l'orientation de la paume de profil est instable : mesuré, puis remplacé par un signal qui reste visible | Un geste moins naturel, pas de cliquet |
+| **Deux poings fermés pour valider** | Une paume qui se ferme | La paume d'un poing est instable : elle relançait l'embrayage en boucle | Un geste de plus à apprendre |
+| **Des tests sans aucun vrai service** | Tester contre les vrais Notion, Redis, Groq | Rapides (environ une seconde pour 547 tests), reproductibles, sans risque pour les vraies données ; tout appel réseau non prévu fait échouer le test | Un seul test (`test:live`), lancé à la main, valide les vraies APIs |
 
 ---
 
@@ -49,12 +53,14 @@ Chaque retrait est daté et motivé dans l'état du projet (`docs/ai/STATUS.md`)
 | **L'allumage du PC par Løra** (prise connectée, réveil par le réseau) | 17/10/2026 | Écarté : l'utilisateur démarre son PC lui-même avec l'application de sa prise. |
 | **Les premières formes du retour visuel de la voix** (ruban réduit de moitié, étoile à six branches) | 06/11/2026 | Remplacées à la demande de l'utilisateur par un huit à l'écoute et un spectre circulaire en parole. |
 | **« Qu'est-ce que je regarde ? »** (capture d'écran et modèle de vision) | 08/11/2026 | Décision de l'utilisateur : fonction inutile, coût en jetons non rentable. Code retiré (capture, commande, champ image de `api/ask`, deux dépendances, tests) ; le modèle de vision inventait le contenu de l'écran. Il n'existe plus que dans l'historique git. |
+| **Scroll, son et déplacement de fenêtre aux gestes** | 13/11/2026 | Décision de l'utilisateur : il n'y a plus aucune commande de base aux gestes. Le scroll avait été codé puis retiré le jour même sans jamais être essayé ; le son reste possible à la voix. |
+| **Les poses « dos contre dos » et « paumes face à face » pour le zoom, et leur cliquet** | 13/11/2026 | Mesurées puis remplacées par les deux index pointés : le dos de la main cache le poignet et la normale de la paume est instable de profil. |
 
 <span class="st st-repl">Retiré</span> Ne pas réintroduire le streak : c'est une décision de l'utilisateur.
 
 ---
 
-@@ page bugs | I | 15 | Bugs et causes racines | Vingt-trois bugs : symptôme, cause, correction, leçon.
+@@ page bugs | I | 15 | Bugs et causes racines | Vingt-sept bugs : symptôme, cause, correction, leçon.
 
 Chaque entrée suit le même plan : **symptôme → cause → correction → leçon**.
 
@@ -150,6 +156,22 @@ La phrase « connecte… » ouvrait l'explorateur de fichiers sur le dossier Doc
 
 « Mets la page en plein écran » lançait une musique, puis « mets en fenêtré » aussi. **Cause** : dans la reconnaissance de la musique, « mets X » signifie « joue X » : toute phrase qui commence par « mets » partait en recherche de morceau. **Correction** : « plein écran », « agrandis » et « en fenêtré » sont reconnus avant la musique. **Limite** : la touche F11 bascule sans connaître l'état de la fenêtre. *Leçon : un verbe courant est un piège ; l'ordre dans lequel le code essaie ses reconnaissances est une décision de conception, pas un détail.* Trouvé deux fois par l'utilisateur à l'usage (09 et 10/11).
 
+## 24. Les gestes de la main : trois défauts qu'aucun test ne pouvait voir
+
+(a) **Gauche et droite inversés** : j'avais supposé, d'après la documentation du modèle de suivi, que l'image brute de la webcam inversait les étiquettes « gauche » et « droite ». Sur de vraies mains, les deux sortaient fausses (et, par ricochet, paume et dos). *Cause* : la logique était cohérente avec l'hypothèse, pas avec le modèle ; les sept tests passaient. *Correction* : constat en réel, hypothèse retirée. (b) **Les deux poings fermés relançaient l'embrayage en boucle** : la paume d'un poing est instable et sortait « paume », donc après la validation les poings valaient « deux paumes » et armaient un nouveau geste. *Correction* : un poing n'arme rien, et il faut quitter la pose d'embrayage 0,6 s après une fin de geste. (c) **Le zoom à deux mains dos contre dos** : le dos de la main cache le poignet et l'orientation de la paume de profil est instable ; une mesure de la normale 3D (paumes face à face +0,9 à +1,0, dos face à face −0,4 à −0,9) a servi à comprendre, puis le geste a été remplacé par la distance entre les bouts de deux index pointés. *Leçon : mesurer sur de vraies mains avant de figer un seuil, et préférer le geste dont le signal reste visible.* Les deux premiers ont été trouvés en réel (le premier par moi sur des images réelles, le deuxième par l'utilisateur).
+
+## 25. Un bilan non enregistré : ce n'était pas le quota
+
+*Symptôme* : aucun bilan dans Notion pour les 12 et 13/11. *Hypothèse écartée par la mesure* : les en-têtes de Groq, lus avec une requête de 80 jetons, montrent 999 requêtes restantes sur 1 000 par jour et 7 920 jetons sur 8 000 par minute. *Vraies causes*, dans les journaux de production (qui ne remontent qu'environ une heure, donc quelques minutes seulement ici) : une requête qui échoue en 400 parce que le modèle appelle un outil absent de la liste envoyée, et une requête de 6 675 jetons qui, rejouée sur le second modèle puis sans recherche, dépasse les 8 000 jetons par minute. *Non prouvé* : laquelle de ces deux demandes était le bilan. *Leçon : la limite par minute se heurte à la taille d'une seule requête bien avant le quota du jour, et les journaux de l'offre gratuite s'effacent vite : relever les erreurs le jour même.* **Pistes sans paiement, non codées** : réduire l'historique, retirer un outil du groupe « bilan » du routage, plafonner la réponse, ne pas rejouer dans la même minute, réessayer avec tous les outils après un 400. En attendant : dicter le bilan en un seul message et attendre une minute avant une autre demande. <span class="st st-prop">Non vérifié</span> Les bilans des 12 et 13/11 sont à rattraper.
+
+## 26. Une fonction écrite, testée et jamais appelée
+
+Les réponses directes (météo, conversions, titres, compte à rebours, « mon PC est-il allumé ? ») étaient écrites, couvertes par 21 tests et déclarées validées par l'utilisateur le 10/11, mais **tout partait quand même au modèle, jetons compris**. **Cause**, trouvée à la revue finale du 14/11 : le module était importé dans `askLora` depuis le commit du 09/11, jamais appelé. Les tests visaient le module seul ; aucun ne passait par l'entrée réelle. **Correction** : l'appel est placé au tout début de `askLora` (avant le choix du modèle, sans clé requise), l'échange est écrit dans l'historique, et un test de régression garde le branchement. *Leçon : un test unitaire prouve qu'un module marche, pas qu'il est utilisé ; tester le chemin d'entrée, et ne pas confondre « validé à l'usage » avec « le chemin prévu a tourné » (un résultat correct peut venir du chemin de repli).* <span class="st st-prop">Non vérifié</span> Jamais essayé en réel.
+
+## 27. Une caméra qui reste allumée
+
+Si la fenêtre de la caméra était démontée pendant le chargement (autorisation, modèle), le nettoyage passait avant l'ouverture du flux : le flux n'était jamais fermé et le voyant restait allumé. **Correction** : le flux et le détecteur sont relâchés par une même fonction, aussi dans ce cas. *Leçon : un nettoyage qui s'exécute avant la ressource qu'il doit libérer ne libère rien ; pour une caméra, c'est aussi une question de confiance.* Trouvé à la relecture, pas à l'usage.
+
 ---
 
 @@ page cloture-v1 | I | 16 | Clôture de la V1 | Ce qui est livré, ce qui a été vérifié le 09/10/2026, l'échec connu et ce qui ne l'est pas.
@@ -208,9 +230,9 @@ La catégorie Notion lue par le code (les logos restent devinés), le statut `Te
 - Une valeur « par défaut » écrite dans un prompt tend à se retrouver partout dans les réponses.
 - Déclarer « terminé » n'efface pas la liste de ce qu'on n'a pas vérifié : la clôture l'inscrit au lieu de l'omettre.
 
-## Depuis la clôture (12/10 → 10/11/2026)
+## Depuis la clôture (12/10 → 16/11/2026)
 
-Une pull request par étape (PR #12 à #47 : étapes, correctifs et documentation), faites du plus simple au plus dur. Le détail est dans [Avancement de la V2](#avancement-v2), [La voix de Løra](#voix) et [Les commandes de Løra](#commandes-vocales) :
+Une pull request par étape (PR #12 à #52 : étapes, correctifs et documentation ; une 53e est ouverte), faites du plus simple au plus dur. Le détail est dans [Avancement de la V2](#avancement-v2), [La voix de Løra](#voix), [Les commandes de Løra](#commandes-vocales) et [Les gestes de la main](#gestes-main) :
 
 | Étape | Ce qui a changé | Statut |
 | --- | --- | --- |
@@ -222,10 +244,12 @@ Une pull request par étape (PR #12 à #47 : étapes, correctifs et documentatio
 | 5 | Recherche web de Løra sur Telegram | <span class="st st-ok">Fait</span> sur le vrai modèle ; <span class="st st-prop">Non vérifié</span> sur Telegram |
 | 6 | Volume, musique, batterie de la souris | <span class="st st-ok">Fait</span> essayés sur la vraie machine |
 | 7 | Plusieurs projets en parallèle | <span class="st st-ok">Fait</span> confirmé par l'utilisateur |
-| 8 | Moteur de protocoles, premier protocole | <span class="st st-ok">Fait</span> essayé en réel par l'utilisateur le 05/11/2026 ; deux autres protocoles reportés |
+| 8 | Moteur de protocoles, premier protocole | <span class="st st-ok">Fait</span> essayé en réel par l'utilisateur le 05/11/2026 ; **en pause** (« bientôt fait », 13/11) ; deux autres protocoles reportés |
 | 9 | La voix : synthèse entraînée sur des enregistrements consentis, reconnaissance locale, mot d'activation | <span class="st st-ok">Fait</span> essayés avec la vraie voix le 05/11/2026, validés par l'utilisateur le 08/11/2026 |
 | 10 | Widget de bureau, ruban synchronisé sur la vraie voix | <span class="st st-ok">Fait</span> validés par l'utilisateur le 08/11/2026 |
 | 11 | « Qu'est-ce que je regarde ? » | <span class="st st-repl">Retiré</span> abandonnée le 08/11/2026, code retiré |
+| 12 | Gestes de la main : détecteur local, mode manuel Blender (rotate, zoom, scaling), caméra à la voix | <span class="st st-ok">Fait</span> cochée le 13/11/2026 sur décision de l'utilisateur, essayée par lui dans Blender (sa parole) ; seuils et gains à régler à l'usage |
 | 13 | Élargir les commandes vocales : `api/ask`, commandes de contrôle, modes de travail, Claude Code, près de vingt « broutilles », réponses sans modèle, outils Notion | <span class="st st-ok">Fait</span> validées par l'utilisateur (08 et 10/11/2026, sur sa parole) ; essayées avant contre des simulations |
+| Revue | Revue finale (14/11/2026) : réponses directes branchées, caméra libérée au démontage, avertissements Rust corrigés, paquet principal −18 % | <span class="st st-ok">Fait</span> 547 tests rapides, 155 Rust, 23 scénarios navigateur, 0 vulnérabilité |
 
-Au 10/11/2026, l'utilisateur déclare la liste « non vérifié » de la V1 soldée (« la V1 est finie, tout est bon », pause comprise) et dit qu'il ne reste que l'étape 12 et l'étape 8 (deux protocoles reportés) ; je n'ai rien rejoué. La passe sécurité a été faite le 08/11 (rien de bloquant), de vrais textes de briefings ont été lus le 08/11, et `npm run test:live` avait été relancé le 13/10/2026 (48/48 sur le vrai Notion, Redis et Groq). Les anciennes données qui faussaient « Finis » ont été réglées par l'utilisateur dans Notion le 08/11 (je n'ai pas relu Notion après).
+Au 10/11/2026, l'utilisateur déclare la liste « non vérifié » de la V1 soldée (« la V1 est finie, tout est bon », pause comprise) et dit qu'il ne reste que l'étape 12 et l'étape 8 ; **au 13/11 il déclare** Spotify reconnecté, les « broutilles » et les deux Extras faits, la voix de Piper correcte, l'étape 8 en pause (« bientôt fait »), les tests d'acceptation à lancer « bientôt » et l'installeur à reconstruire avec le backend à redéployer **à la fin de la session, par lui** ; l'étape 12 est cochée le même jour. Je n'ai rien rejoué de ces déclarations. La passe sécurité a été faite le 08/11 (rien de bloquant), de vrais textes de briefings ont été lus le 08/11, et `npm run test:live` avait été relancé le 13/10/2026 (48/48 sur le vrai Notion, Redis et Groq). La revue finale du 14/11 a pourtant trouvé que les réponses directes n'étaient pas branchées (bug [26](#bugs)) : une validation sur parole ne remplace pas la lecture du chemin de code.

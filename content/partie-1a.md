@@ -15,6 +15,7 @@ Un assistant qui vit là où l'utilisateur est déjà, une conversation Telegram
 - un message exact sur Telegram peut lancer un **protocole** : une séquence d'étapes que le PC va chercher et exécute ;
 - elle **parle et écoute** : chaque réponse de `Ctrl+K` est dite à voix haute avec une voix entraînée sur des enregistrements consentis, et une phrase qui commence par « Løra » est comprise par une reconnaissance vocale locale (voir [La voix de Løra](#voix)) ;
 - à la voix, elle lance aussi des **modes de travail** et peut **lire ou écrire dans une session Claude Code** ;
+- devant la caméra, ses **gestes de la main** (mode manuel) pilotent Blender : tourner la vue, zoomer, redimensionner ; la caméra est éteinte par défaut et ne s'allume qu'à la voix ;
 - elle répond **sans modèle** aux questions simples (heure, minuteurs, météo de demain, conversions, titres du jour, compte à rebours), ce qui ne coûte aucun jeton ;
 - elle **prend la parole d'elle-même** (rendez-vous, batterie de la souris, pause pour le dos) et dit bonjour au démarrage.
 
@@ -28,16 +29,16 @@ L'assistante s'appelait Soza, un prénom masculin choisi comme nom provisoire. L
 
 ## Statut
 
-La V1 a été déclarée terminée le 09/10/2026 (voir [Clôture de la V1](#cloture-v1)) ; l'utilisateur a soldé le 10/11/2026 sa liste « non vérifié ». Le backend est en production ; l'application de bureau a un installeur Windows. La V2 a démarré le 12/10/2026 et avance une pull request par étape (47 fusionnées au 10/11/2026, voir [Avancement de la V2](#avancement-v2)) : les étapes 0 à 7 sont faites, la 8 l'est avec un protocole (deux autres reportés), les étapes 9 (voix), 10 (widget) et 13 (commandes vocales) sont validées par l'utilisateur, la 11 (« qu'est-ce que je regarde ? ») est abandonnée et la 12 (gestes de la main) n'est pas commencée (voir [Vision V2](#vision-v2), [La voix de Løra](#voix) et [Les commandes de Løra](#commandes-vocales)).
+La V1 a été déclarée terminée le 09/10/2026 (voir [Clôture de la V1](#cloture-v1)) ; l'utilisateur a soldé le 10/11/2026 sa liste « non vérifié ». Le backend est en production ; l'application de bureau a un installeur Windows. La V2 a démarré le 12/10/2026 et avance une pull request par étape (52 fusionnées au 16/11/2026, voir [Avancement de la V2](#avancement-v2)) : les étapes 0 à 7 sont faites, la 8 l'est avec un protocole (deux autres reportés, étape en pause), les étapes 9 (voix), 10 (widget) et 13 (commandes vocales) sont validées par l'utilisateur, la 11 (« qu'est-ce que je regarde ? ») est abandonnée et la 12 (gestes de la main) est cochée depuis le 13/11. Une revue finale a eu lieu le 14/11 (voir [La voix de Løra](#voix), [Les commandes de Løra](#commandes-vocales) et [Les gestes de la main](#gestes-main)).
 
 ## Chiffres clés
 
 | | |
 | --- | --- |
-| Durée | 3 semaines de V1 (premier commit le 16/09/2026, clôture le 09/10/2026), puis la V2 : étapes 0 à 8 du 12 au 20/10/2026, la voix et les commandes vocales du 18/10 au 10/11/2026 |
-| Historique | 73 commits à la clôture, 176 sur `main` au 10/11/2026 (47 pull requests fusionnées) |
+| Durée | 3 semaines de V1 (premier commit le 16/09/2026, clôture le 09/10/2026), puis la V2 : étapes 0 à 8 du 12 au 20/10/2026, la voix et les commandes vocales du 18/10 au 10/11/2026, les gestes de la main du 11 au 13/11/2026, la revue finale le 14/11/2026 |
+| Historique | 73 commits à la clôture, 187 sur `main` au 16/11/2026 (52 pull requests fusionnées, une ouverte) |
 | Code suivi par git | ~5 070 lignes : `api/` 167, `lib/` 1 165, `src/` 3 135, `scripts/` 440, Rust 166 ; plus 2 152 lignes de tests |
-| Tests | 644 : 472 rapides et 149 en Rust (rejoués le 09/11/2026 d'après l'état du projet), 23 scénarios navigateur (rejoués le 08/11/2026) ; 13 essais réels en Rust sont ignorés par défaut |
+| Tests | 725 : 547 rapides, 155 en Rust et 23 scénarios navigateur (rejoués par la revue finale du 14/11/2026, d'après l'état du projet) ; 13 essais réels en Rust sont ignorés par défaut |
 | Endpoints serverless | 8 |
 | Outils IA exposés au modèle | 26, plus la recherche web intégrée du fournisseur |
 | Bases Notion | 5 (Idées, Agenda, Jalons, Progression, Réglages) |
@@ -160,9 +161,9 @@ Une phrase venue de `Ctrl+K` ou du micro passe par `api/ask`, qui appelle le mê
 
 Une consigne de franchise est ajoutée à toutes les conversations : ne jamais inventer une information, un résultat ou une réponse ; ne dire sur Løra et sur l'utilisateur que ce qu'un outil a rendu dans l'échange ; sinon le dire en une phrase et proposer comment l'obtenir ; ne jamais annoncer une action faite sans la confirmation de l'outil. C'est une consigne au modèle, pas un filtre : seul ce qui lui est envoyé est testé. Les briefings, eux, reçoivent des faits calculés par le code.
 
-## Répondre sans modèle (09/11)
+## Répondre sans modèle (09/11, branché le 14/11)
 
-`lib/quick-answers.ts` est appelé au tout début de `askLora`, avant le choix du modèle : la voix et Telegram en profitent, et une réponse directe n'a même pas besoin de la clé de Groq. Il rend du texte fabriqué par le code ; `null` laisse la phrase partir au modèle. **Une demande reconnue ne retombe jamais sur le gros modèle** (la recherche web coûte 19 000 à 41 000 jetons) : si un service est en panne, la réponse le dit.
+`lib/quick-answers.ts` est appelé (depuis le 14/11/2026 seulement, voir plus bas) au tout début de `askLora`, avant le choix du modèle : la voix et Telegram en profitent, et une réponse directe n'a même pas besoin de la clé de Groq. Il rend du texte fabriqué par le code ; `null` laisse la phrase partir au modèle. **Une demande reconnue ne retombe jamais sur le gros modèle** (la recherche web coûte 19 000 à 41 000 jetons) : si un service est en panne, la réponse le dit.
 
 - **Météo** de demain, d'après-demain, de la semaine, « il va pleuvoir demain ? » (Open-Meteo ; temps en mots, risque de pluie dit à partir de 20 %). La météo d'aujourd'hui reste au modèle.
 - **Conversions** : unités (en local), devises (taux de la BCE) et cryptomonnaies, par l'euro ; une phrase qui n'est pas une conversion cohérente (« 10 kilomètres en euros ») reste au modèle.
@@ -171,7 +172,7 @@ Une consigne de franchise est ajoutée à toutes les conversations : ne jamais i
 - **Traduction et définitions** : le seul passage par un modèle, un petit appel au modèle léger, sans outils ni recherche, 150 jetons de réponse au plus (environ 1 000 jetons au total, estimé, non mesuré).
 - **« Mon PC est-il allumé ? »** : réponse fabriquée à partir de la présence du PC (voir [Sécurité](#securite)).
 
-Tests : 21 tests unitaires sans réseau ni modèle, où un « jamais appelé » fait échouer le test si une demande part au mauvais endroit. <span class="st st-prop">Non vérifié</span> Les APIs réelles (taux de change, cryptos : limites d'appels sans clé) et ce que Whisper écrit pour « 10 dollars en euros » ; pas d'essai contre le vrai modèle (quota).
+Tests : 21 tests unitaires sans réseau ni modèle, où un « jamais appelé » fait échouer le test si une demande part au mauvais endroit. <span class="st st-prop">Non vérifié</span> Les APIs réelles (taux de change, cryptos : limites d'appels sans clé) et ce que Whisper écrit pour « 10 dollars en euros » ; pas d'essai contre le vrai modèle (quota). **Défaut trouvé à la revue finale du 14/11/2026 : ce module était importé dans `askLora` depuis le 09/11 mais jamais appelé.** Tout partait au modèle, jetons compris, malgré les 21 tests (qui visaient le module seul) et la validation de l'utilisateur du 10/11. `askLora` l'appelle maintenant au tout début, sans clé Groq requise, et écrit l'échange dans l'historique ; un test de régression garde le branchement. Effet de bord assumé : « cherche le cours du Bitcoin » est désormais une réponse directe. Voir le bug [26](#bugs). <span class="st st-prop">Non vérifié</span> Jamais essayé en réel (réseau et Groq non appelés).
 
 ## Repli
 
